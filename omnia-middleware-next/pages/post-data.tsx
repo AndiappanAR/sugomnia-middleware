@@ -1,51 +1,49 @@
-import { useState } from 'react';
+// pages/index.js (continuation)
+import { useEffect, useState } from 'react';
 
-export default function AddPostPage() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+export default function HomePage() {
+  const [cachedData, setCachedData] = useState(null);
+  const [newData, setNewData] = useState('');
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch('/api/cache');
+      const data = await response.json();
+      setCachedData(data);
+    }
 
-    // Prepare the new post data
-    const newPost = {
-      id: Math.random(), // Generate a random ID
-      title,
-      content,
-    };
+    fetchData();
+  }, []);
 
-    // Send a POST request to write data
-    const response = await fetch('/api/write-data', {
+  const handleCacheSave = async () => {
+    const response = await fetch('/api/cache', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newPost),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: newData }),
     });
 
     const result = await response.json();
-    if (response.ok) {
-      alert('Post added successfully!');
-    } else {
-      alert('Failed to add post: ' + result.message);
-    }
+    setCachedData(result);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Add a New Post</h1>
-      <input
-        type="text"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <button type="submit">Add Post</button>
-    </form>
+    <div>
+      <h1>Cached Data</h1>
+      {cachedData ? (
+        <pre>{JSON.stringify(cachedData, null, 2)}</pre>
+      ) : (
+        <p>No cached data found</p>
+      )}
+
+      <div>
+        <input
+          type="text"
+          value={newData}
+          onChange={(e) => setNewData(e.target.value)}
+          placeholder="Enter new data to cache"
+        />
+        <button onClick={handleCacheSave}>Cache Data</button>
+      </div>
+    </div>
   );
 }
