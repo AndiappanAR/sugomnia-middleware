@@ -11,7 +11,7 @@ export default function Home() {
 
       <main>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">OMNIA middleware service!</a>
+          Welcome to <a href="https://nextjs.org">OMNIA micro service!</a>
         </h1>
 
         <div className={styles.grid}>
